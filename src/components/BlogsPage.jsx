@@ -1,5 +1,5 @@
 import { useUserStore } from '@/lib/store';
-import React, { use, useState } from 'react';
+import React, { use, useCallback, useEffect, useRef, useState } from 'react';
 
 // --- DUMMY DATA (Hardcoded as requested) ---
 const DUMMY_POST_DATA = [
@@ -1791,6 +1791,14 @@ const PostCard = ({ post, index }) => {
     );
 };
 
+const LoadingSpinner = () => (
+  <div className="flex justify-center items-center p-4">
+    <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  </div>
+);
 
 // --- The Main BlogsPage Component ---
 const BlogsPage = () => {
@@ -1798,28 +1806,93 @@ const BlogsPage = () => {
   const user = useUserStore(state=>state.user)
   const isLoading = useUserStore(state=>state.isLoading)
   const timeline = useUserStore(state=>state.timeline)
+  const lastPostId = useUserStore(state=>state.lastPostId)
+  const isFetchingMore = useUserStore(state=>state.isFetchingMore)
+  const appendTimeline = useUserStore(state=>state.appendTimeline)
+  const setIsFetchingMore = useUserStore(state=>state.setIsFetchingMore)
 
   console.log('timeline',timeline);
-  
+
+  const observerRef = useRef(null);
+
+  const fetchMorePosts = useCallback(async () => {
+    // Prevent fetching if already in progress or if there's no more data to paginate from
+    if (isFetchingMore || !lastPostId) return;
+
+    setIsFetchingMore(true);
+    try {
+      // Use the lastPostId to paginate with the `max_id` parameter
+      console.log(`/api/mastodon/v1/timelines/home?limit=20&max_id=${lastPostId}`);
+      
+      const res = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20&max_id=${lastPostId}`);
+      if (res.ok) {
+        const newTimelineData = await res.json();
+        // Append new data only if we received some
+        if (newTimelineData.length > 0) {
+          appendTimeline(newTimelineData);
+        }
+      } else {
+        console.error("Failed to fetch more posts");
+      }
+    } catch (e) {
+      console.error("Error fetching more posts:", e);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  }, [lastPostId, isFetchingMore, appendTimeline, setIsFetchingMore]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // If the observer's target is intersecting (visible on screen)
+        if (entries[0].isIntersecting) {
+          fetchMorePosts();
+        }
+      },
+      { threshold: 1.0 } // Trigger when the element is 100% visible
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    // Cleanup function to disconnect the observer
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, [fetchMorePosts]);
+
+  if (isLoading) {
+    return (
+        <div className='border-x border-neutral-800 min-h-screen'>
+            <CreatePost />
+            <LoadingSpinner/>
+        </div>
+    );
+  }
 
   return (
-    <>
-      {isLoading || !user ? (<div className='border-x border-neutral-800 min-h-screen'>
-          <CreatePost />
-          {DUMMY_POST_DATA.map((post, i) => (
-            <PostCard key={i} post={post} index={i} />
-          ))}
-      </div>)
-      : 
-        (<div className='border-x border-neutral-800 min-h-screen'>
-          <CreatePost />
-          {timeline.map((post, i) => (
-            <PostCard key={i} post={post} index={i} />
-          ))}
-      </div>)   
-      }
-    </>
-  )
+    <div className='border-x border-neutral-800 min-h-screen'>
+      <CreatePost />
+      {timeline.map((post, i) => (
+        // IMPORTANT: Use a stable, unique key like post.id
+        <PostCard key={i} post={post} index={i}/>
+      ))}
+
+      {/* This invisible div is the trigger for the Intersection Observer */}
+      <div ref={observerRef} style={{ height: "1px" }} />
+
+      {/* Show loading spinner at the bottom while fetching more posts */}
+      {isFetchingMore && <LoadingSpinner />}
+      
+      {/* Optional: Show a message when no more posts can be loaded */}
+      {!isFetchingMore && timeline.length > 0 && !lastPostId && (
+        <div className="text-center text-neutral-500 p-4">You've reached the end!</div>
+      )}
+    </div>
+  );
 }
 
 export default BlogsPage;

@@ -1,7 +1,6 @@
 'use client'
 
 import ContentPage from "@/components/ContentPage";
-import HomePage from "@/components/HomePage";
 import Navbar from "@/components/Navbar";
 import RelevantPage from "@/components/RelevantPage";
 import { useUserStore } from "@/lib/store";
@@ -108,7 +107,4 @@ export default function Home() {
       </div>
     </>
   );
-  // return (
-  //   <HomePage/>
-  // )
 }

@@ -43,7 +43,10 @@ async function handler(request, { params }) {
   // `https://mastodon.social/api/v1/timelines/home`
   const { endpoint } = await params;
 const endpointPath = endpoint.join('/');
-  const apiUrl = `${mastodonInstance}/api/${endpointPath}`;
+const searchParams = request.nextUrl.search;
+  const apiUrl = `${mastodonInstance}/api/${endpointPath}${searchParams}`;
+
+
 
   try {
     // 4. Prepare the request to be forwarded.
