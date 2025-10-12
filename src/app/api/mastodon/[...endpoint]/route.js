@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import Iron from '@hapi/iron';
+import axios from 'axios';
 
 // This is a proxy route. It catches all requests to /api/mastodon/*
 // Its job is to:
@@ -22,64 +23,75 @@ async function unsealData(sealedData) {
   }
 }
 
-// A generic handler for both GET and POST requests.
-async function handler(request, { params }) {
-  // 1. Check for the session cookie.
-  const cookieVal = await cookies();
-  const cookie = cookieVal.get(cookieName);
-  if (!cookie) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-  }
-
-  // 2. Decrypt the cookie to get the access token.
-  const session = await unsealData(cookie.value);
-  if (!session || !session.accessToken) {
-    return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
-  }
-  const { accessToken } = session;
-  
-  // 3. Reconstruct the target Mastodon API URL from the request.
-  // e.g., a request to `/api/mastodon/v1/timelines/home` becomes
-  // `https://mastodon.social/api/v1/timelines/home`
-  const { endpoint } = await params;
-const endpointPath = endpoint.join('/');
-const searchParams = request.nextUrl.search;
-  const apiUrl = `${mastodonInstance}/api/${endpointPath}${searchParams}`;
-
-
-
+export async function POST(request, {params}) {
   try {
-    // 4. Prepare the request to be forwarded.
-    const headers = {
-      'Authorization': `Bearer ${accessToken}`,
-    };
-    
-    let body = null;
-    // If it's a POST request (like creating a status), we need to pass the body along.
-    if (request.method === 'POST') {
-        headers['Content-Type'] = 'application/json';
-        body = await request.text();
+    const cookieVal = await cookies();
+    const cookie = cookieVal.get(cookieName);
+    if (!cookie) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-
-    // 5. Make the actual request to the Mastodon API.
-    const mastodonResponse = await fetch(apiUrl, {
-      method: request.method,
-      headers,
-      body,
-      // Pass duplex stream for POST requests in Next.js 13+ Edge runtime
-      ...(request.method === 'POST' && { duplex: 'half' }),
-    });
+    const session = await unsealData(cookie.value);
+    if (!session || !session.accessToken) {
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+    }
+    const { accessToken } = session;
     
-    // 6. Send Mastodon's response and status code back to our frontend.
-    const data = await mastodonResponse.json();
+    // 3. Reconstruct the target Mastodon API URL from the request.
+    // e.g., a request to `/api/mastodon/v1/timelines/home` becomes
+    // `https://mastodon.social/api/v1/timelines/home`
+    const { endpoint } = await params;
+    const endpointPath = endpoint.join('/');
+    const searchParams = request.nextUrl.search;
+    const apiUrl = `${mastodonInstance}/api/${endpointPath}${searchParams}`;
+  
+    const headers = {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      };
+  
+    const body = await request.text();
+    const mastodonResponse = await axios.post(apiUrl, body, {headers});
+  
+    const data = mastodonResponse.data;
     return NextResponse.json(data, { status: mastodonResponse.status });
-
   } catch (error) {
-    console.error(`API proxy error for /${endpointPath}:`, error);
+  console.log(error);
     return NextResponse.json({ error: 'API proxy request failed' }, { status: 502 }); // 502 Bad Gateway
   }
 }
 
-// Export the handler for both GET and POST HTTP methods.
-export { handler as GET, handler as POST };
 
+export async function GET(request, {params}) {
+  try {
+    const cookieVal = await cookies();
+    const cookie = cookieVal.get(cookieName);
+    if (!cookie) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+    const session = await unsealData(cookie.value);
+    if (!session || !session.accessToken) {
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+    }
+    const { accessToken } = session;
+    
+    // 3. Reconstruct the target Mastodon API URL from the request.
+    // e.g., a request to `/api/mastodon/v1/timelines/home` becomes
+    // `https://mastodon.social/api/v1/timelines/home`
+    const { endpoint } = await params;
+    const endpointPath = endpoint.join('/');
+    const searchParams = request.nextUrl.search;
+    const apiUrl = `${mastodonInstance}/api/${endpointPath}${searchParams}`;
+  
+    const headers = {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      };
+    const mastodonResponse = await axios.get(apiUrl, {headers});
+  
+    const data = mastodonResponse.data;
+    return NextResponse.json(data, { status: mastodonResponse.status });
+  } catch (error) {
+  console.log(error);
+    return NextResponse.json({ error: 'API proxy request failed' }, { status: 502 }); // 502 Bad Gateway
+  }
+}

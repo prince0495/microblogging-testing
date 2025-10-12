@@ -38,6 +38,8 @@ export default function Home() {
             const userData = await userRes.json();
             setUser(userData);
             console.log(userData);
+            console.log('scope', userData.scopes, userData.scope);
+            
             
             // If user is logged in, fetch their timeline.
             // Construct an absolute URL to prevent parsing errors.

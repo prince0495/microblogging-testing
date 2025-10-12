@@ -29,7 +29,7 @@ export async function GET(request, { params }) {
   // --- LOGIN ACTION ---
   if (action === 'login') {
     // We need read access (for timelines) and write access (to post statuses).
-    const scopes = 'read write:statuses';
+    const scopes = 'read write:statuses write:media';
     
     // Construct the authorization URL.
     const authUrl = new URL(`${mastodonInstance}/oauth/authorize`);
@@ -55,7 +55,7 @@ export async function GET(request, { params }) {
       // Exchange the temporary code for a permanent access token.
       // This is a secure server-to-server request.
       const tokenResponse = await fetch(`${mastodonInstance}/oauth/token`, {
-        method: 'POST',
+        method: 'POST',  
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
           client_id: clientId,
@@ -75,6 +75,10 @@ export async function GET(request, { params }) {
 
       const tokenData = await tokenResponse.json();
       const accessToken = tokenData.access_token;
+      console.log('token');
+      
+      console.log(accessToken)
+      // UjrJYDuAgbp7gc5CksDb7s6k9XY47_dUq_Qjk8l2kHM
 
       // Now, securely store the access token in an encrypted, httpOnly cookie.
       // This cookie cannot be accessed by client-side JavaScript, preventing XSS attacks.
