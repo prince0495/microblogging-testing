@@ -1619,8 +1619,6 @@ const CreatePost = () => {
     </div>
 )};
 
-// A card to display a single post
-
 // const PostCard = ({ post, index }) => {
 //     // --- Determine Post Type based on index ---
 //     const isLive = index % 2 === 0;
@@ -2056,7 +2054,6 @@ const BlogsPage = () => {
     setIsFetchingMore(true);
     try {
       // Use the lastPostId to paginate with the `max_id` parameter
-      console.log(`/api/mastodon/v1/timelines/home?limit=20&max_id=${lastPostId}`);
       
       const res = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20&max_id=${lastPostId}`);
       if (res.ok) {

@@ -1,18 +1,6 @@
-// const RelevantPage = () => {
-//     return (
-//         <div className="p-6">
-//             <h2 className="text-xl font-semibold mb-4 text-gray-800">Details Panel</h2>
-//             <p className="text-gray-700">
-//                 This sidebar is always visible on desktop. On mobile, it appears as a drawer. The content inside it can scroll independently if it overflows.
-//             </p>
-            
-//         </div>
-//     )
-// }
-// export default RelevantPage;
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useUserStore } from '@/lib/store';
 
 
 // --- DUMMY DATA PROVIDED IN THE PROMPT ---
@@ -61,9 +49,21 @@ const AccountItem = ({ account }) => (
 );
 
 // Component for a single trending tag item
-const TrendItem = ({ trend }) => (
+const TrendItem = ({ trend }) => {
+  const setTimeline = useUserStore(state=>state.setTimeline);
+  
+  const handleClick = async() => {
+     const res = await axios.get(`https://mastodon.social/api/v1/timelines/tag/${trend.name}?limit=20`);
+     if(res.data?.length > 0) {
+        setTimeline(res.data)
+     }
+  }
+  
+  return(
   <li className="px-4 py-3 transition-colors duration-200 hover:bg-neutral-800/50">
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center"
+       onClick={handleClick}
+    >
         <div>
             <p className="text-sm text-neutral-400">Trending</p>
             <p className="font-bold text-gray-100">#{trend.name}</p>
@@ -74,21 +74,29 @@ const TrendItem = ({ trend }) => (
         </button>
     </div>
   </li>
-);
+)};
 
 
 const RelevantPage = () => {
   const [tags, setTags] = useState([])
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     (async() => {
-      const response = await axios.get('https://mastodon.social/api/v1/trends/tags');
+      const response = await axios.get('https://mastodon.social/api/v1/trends/tags');      
       if(response.data) {
         setTags(response.data)
       }
     })()
   }, [])
+  const setTimeline = useUserStore(state=>state.setTimeline);
   
+  const fetchStatusWithTrend = async(trend) => {
+     const res = await axios.get(`https://mastodon.social/api/v1/timelines/tag/${trend}?limit=20`);
+     if(res.data?.length > 0) {
+        setTimeline(res.data)
+     }
+  }
 
   return (
     // This container is designed to be placed in a sidebar layout.
@@ -106,7 +114,61 @@ const RelevantPage = () => {
 
       {/* "Trends for you" Card */}
       <SidebarCard title="Trends for you">
-        <ul>
+        {/* <ul>
+            {tags.map(tag => (
+                <TrendItem key={tag.id} trend={tag} />
+            ))}
+        </ul> */}
+
+
+        <div className="px-4 pb-3">
+          <div className="flex items-center gap-3">
+              {/* Search input with integrated reset button */}
+              <div className="relative flex-grow">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="w-5 h-5 text-neutral-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  </div>
+                  <input
+                      type="text"
+                      placeholder="Search Trends, e.g., Trading"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-neutral-800 text-gray-100 rounded-full pl-10 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-shadow duration-200"
+                  />
+                  {/* --- NEW: Reset button appears when there is input --- */}
+                  {searchQuery && (
+                      <button 
+                          onClick={async() => {
+                            const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
+                            if (timelineRes.ok) {
+                              const timelineData = await timelineRes.json();
+                              setTimeline(timelineData);
+                              
+                            } else {
+                              throw new Error('Could not fetch timeline.');
+                            }
+                            setSearchQuery('')
+                          }} 
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-500 hover:text-white transition-colors duration-200"
+                          aria-label="Clear search"
+                      >
+                          <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      </button>
+                  )}
+              </div>
+              {/* --- NEW: Standalone search button --- */}
+              <button
+                  onClick={() => {
+                    fetchStatusWithTrend(searchQuery)
+                  }}
+                  className="flex-shrink-0 bg-sky-500 text-white font-semibold px-5 py-2 rounded-full hover:bg-sky-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+                  aria-label="Search"
+              >
+                  Search
+              </button>
+          </div>
+      </div>
+         <ul>
             {tags.map(tag => (
                 <TrendItem key={tag.id} trend={tag} />
             ))}

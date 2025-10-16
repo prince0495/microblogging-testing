@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Stream {
+  id                  String            @id @unique @default(uuid())
+  description         String
+  status              StreamStatus      @default(SCHEDULED)
+  price               Decimal           @db.Decimal(10,2)
+  currency            StreamCurrency    @default(USD)
+  scheduledAt         DateTime
+  startedAt           DateTime?
+  endedAt             DateTime?
+
+  statusId            String?           @unique
+  
+  authorId            String
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  @@index([authorId])
+}
+
+enum StreamStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+enum StreamCurrency {
+  USD
+  EUR
+  GBP
+  INR
+}

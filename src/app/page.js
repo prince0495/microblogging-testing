@@ -8,10 +8,10 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   
-  const user = useUserStore(state => state.user);
-  const timeline = useUserStore(state => state.timeline);
-  const isLoading = useUserStore(state => state.isLoading);
-  const error = useUserStore(state => state.error);
+  // const user = useUserStore(state => state.user);
+  // const timeline = useUserStore(state => state.timeline);
+  // const isLoading = useUserStore(state => state.isLoading);
+  // const error = useUserStore(state => state.error);
 
   const setUser = useUserStore(state => state.setUser);
   const setTimeline = useUserStore(state => state.setTimeline);

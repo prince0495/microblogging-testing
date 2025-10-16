@@ -12,6 +12,12 @@ export default function StatusComposer() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  const [price, setPrice] = useState('');
+  const [currency, setCurrency] = useState('INR');
+  const [scheduleTime, setScheduleTime] = useState('');
+
+  const user = useUserStore(state=>state.user);
   
   const addTimeline = useUserStore(state=>state.addTimeline);
 
@@ -30,10 +36,14 @@ export default function StatusComposer() {
 
   const handlePostStatus = async (e) => {
     e.preventDefault();
+    if(postType === 'stream' && new Date(scheduleTime) < new Date) {
+      alert('Please select a date in future');
+    }
     if (statusText.trim() === '' && mediaFiles.length === 0) {
       setError('You must add some text or attach a file.');
       return;
     }
+    
     
     setIsSubmitting(true);
     setError('');
@@ -43,6 +53,14 @@ export default function StatusComposer() {
     formData.append('status', statusText);
     formData.append('postType', postType);
     formData.append('visibility', visibility);
+    formData.append('userId', user?.id);
+
+    // Append stream-specific data if the post type is 'stream'
+    if (postType === 'stream') {
+      formData.append('price', price);
+      formData.append('currency', currency);
+      formData.append('scheduleTime', scheduleTime);
+    }
 
     mediaFiles.forEach((file) => {
       formData.append('media', file);
@@ -74,6 +92,10 @@ export default function StatusComposer() {
       setPostType('normal');
       setVisibility('public');
       setMediaFiles([]);
+      // Reset new stream-specific fields
+      setPrice('');
+      setCurrency('INR');
+      setScheduleTime('');
       // Clear the file input visually
       if (document.getElementById('media-upload-input')) {
         document.getElementById('media-upload-input').value = '';
@@ -161,6 +183,55 @@ export default function StatusComposer() {
           </button>
         </div>
       </div>
+
+      {/* --- ADDED: Conditionally Rendered Stream Options --- */}
+      {postType === 'stream' && (
+        <div className="bg-gray-800 p-3 rounded-lg space-y-3 border border-gray-600">
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Price Input */}
+            <div className="flex items-center gap-2 flex-1 min-w-[150px]">
+              <label htmlFor="price" className="font-semibold">Price:</label>
+              <input
+                id="price"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="e.g., 10"
+                className="w-full bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              />
+            </div>
+            
+            {/* Currency Select */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="currency">Currency:</label>
+              <select
+                id="currency"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="bg-gray-700 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                <option value="INR">INR</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+              </select>
+            </div>
+          </div>
+          
+          {/* Schedule Time Input */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="scheduleTime" className="font-semibold">Schedule for:</label>
+            <input
+              id="scheduleTime"
+              type="datetime-local"
+              value={scheduleTime}
+              onChange={(e) => setScheduleTime(e.target.value)}
+              className="w-full bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            />
+          </div>
+        </div>
+      )}
+      {/* --- END of ADDED section --- */}
       
       {/* "Who can repost" is controlled by visibility. This note clarifies it for the user. */}
       <p className="text-xs text-gray-400">
