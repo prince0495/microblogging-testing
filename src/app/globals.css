@@ -32,3 +32,19 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@layer components {
+  .toggle {
+    @apply appearance-none relative inline-block w-12 h-6 rounded-full cursor-pointer transition-colors;
+    @apply bg-neutral-700;
+  }
+  .toggle:checked {
+    @apply bg-sky-500;
+  }
+  .toggle::after {
+    @apply content-[''] absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform;
+  }
+  .toggle:checked::after {
+    @apply transform translate-x-6;
+  }
+}

@@ -29,7 +29,7 @@ export async function GET(request, { params }) {
   // --- LOGIN ACTION ---
   if (action === 'login') {
     // We need read access (for timelines) and write access (to post statuses).
-    const scopes = 'read write:statuses write:media';
+    const scopes = 'read write:statuses write:media write:accounts';
     
     // Construct the authorization URL.
     const authUrl = new URL(`${mastodonInstance}/oauth/authorize`);
@@ -63,7 +63,7 @@ export async function GET(request, { params }) {
           redirect_uri: redirectUri,
           grant_type: 'authorization_code',
           code: code,
-          scope: 'read write:statuses',
+          scope: 'read write:statuses write:accounts',
         }),
       });
 

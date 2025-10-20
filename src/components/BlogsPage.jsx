@@ -1789,7 +1789,7 @@ const CreatePost = () => {
 //         </>
 //     );
 // };
-const PostCard = ({ post, index }) => {
+export const PostCard = ({ post, index }) => {
     // State to track the currently displayed media item
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 

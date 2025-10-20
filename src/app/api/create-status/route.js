@@ -6,8 +6,6 @@ import Iron from '@hapi/iron';
 import globalPrisma from '@/lib/prisma';
 import { StreamCurrency } from '@/generated/prisma';
 import { Decimal } from '@/generated/prisma/runtime/library';
-import { promises as fs } from 'fs';
-import path from 'path';
 
 const mastodonInstance = process.env.MASTODON_INSTANCE_URL;
 const cookieSecret = process.env.COOKIE_SECRET;
