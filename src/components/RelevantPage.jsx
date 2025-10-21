@@ -139,7 +139,8 @@ const RelevantPage = () => {
                   {searchQuery && (
                       <button 
                           onClick={async() => {
-                            const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
+                            // const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
+                            const timelineRes = await fetch(`${window.location.origin}/api/timelines?limit=20`);
                             if (timelineRes.ok) {
                               const timelineData = await timelineRes.json();
                               setTimeline(timelineData);

@@ -119,7 +119,8 @@ export default function HomePage() {
           
           // If user is logged in, fetch their timeline.
           // Construct an absolute URL to prevent parsing errors.
-          const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
+          // const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
+          const timelineRes = await fetch(`${window.location.origin}/api/timelines?limit=20`);
           if (timelineRes.ok) {
             const timelineData = await timelineRes.json();
             setTimeline(timelineData);

@@ -2,8 +2,6 @@
 
 import ContentPage from "@/components/ContentPage";
 import HomeWrapper from "@/components/HomeWrapper";
-import Navbar from "@/components/Navbar";
-import RelevantPage from "@/components/RelevantPage";
 import { useUserStore } from "@/lib/store";
 import { useEffect, useState } from "react";
 
@@ -37,7 +35,8 @@ export default function Home() {
             
             // If user is logged in, fetch their timeline.
             // Construct an absolute URL to prevent parsing errors.
-            const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
+            // const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
+            const timelineRes = await fetch(`${window.location.origin}/api/timelines?limit=20`);
             if (timelineRes.ok) {
               const timelineData = await timelineRes.json();
               setTimeline(timelineData);

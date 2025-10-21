@@ -42,6 +42,8 @@ export async function GET(req) {
       },
     });
 
+    // api/user/statuses?userId=235
+
     return NextResponse.json({ statuses: res.data });
   } catch (error) {
     console.error("Error in /api/user/profile:", error);

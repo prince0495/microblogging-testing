@@ -47,13 +47,13 @@ export async function POST(request) {
     const postType = formData.get('postType');
     const visibility = formData.get('visibility');
     const mediaFiles = formData.getAll('media'); // real File objects
-
+    
     const mediaIds = [];
     for (const file of mediaFiles) {
       const media = await uploadMedia(file, accessToken);
       mediaIds.push(media.id);
     }
-
+    
     const body = new FormData();
     body.append('visibility', visibility);
     mediaIds.forEach((id) => body.append('media_ids[]', id));
@@ -105,34 +105,6 @@ export async function POST(request) {
         });
 
         const sealed = await Iron.seal({ authorId: userId, price, currency, streamId: stream.id }, cookieSecret, Iron.defaults);
-        // const formData = new FormData();
-        
-    //    const imagePath = path.join(process.cwd(), 'public', 'tp_image.jpg');
-
-    // // 2. Read the image file into a Buffer
-    // const imageBuffer = await fs.readFile(imagePath);
-
-    // // 3. Create a Blob from the Buffer (This is the crucial step)
-    // const imageBlob = new Blob([imageBuffer]);
-
-    // // 4. Create FormData and append the Blob and other data
-    // const formData = new FormData();
-    // formData.append('file', imageBlob, 'tp_image.jpg');
-
-    //     formData.append('description', `Tradegospel:verification_v1 ${sealed}`);
-    //     const res = await fetch(`${mastodonInstance}/api/v2/media`, {
-    //       method: 'POST',
-    //       headers: {
-    //         Authorization: `Bearer ${accessToken}`,
-    //       },
-    //       body: formData
-    //     });
-
-    //     const media = await res.json();
-    //     console.log('media', media);
-        
-    //     body.append('media_ids[]', media.id);
-
         const statusText = `${status} Tradegospel_v1:${sealed}`;
         body.append('status', statusText);
 

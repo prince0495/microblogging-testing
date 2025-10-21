@@ -42,6 +42,7 @@ export async function POST(request, {params}) {
     const { endpoint } = await params;
     const endpointPath = endpoint.join('/');
     const searchParams = request.nextUrl.search;
+    
     const apiUrl = `${mastodonInstance}/api/${endpointPath}${searchParams}`;
   
     const headers = {
@@ -80,6 +81,8 @@ export async function GET(request, {params}) {
     const { endpoint } = await params;
     const endpointPath = endpoint.join('/');
     const searchParams = request.nextUrl.search;
+    console.log(searchParams);
+    
     const apiUrl = `${mastodonInstance}/api/${endpointPath}${searchParams}`;
   
     const headers = {
@@ -89,6 +92,8 @@ export async function GET(request, {params}) {
     const mastodonResponse = await axios.get(apiUrl, {headers});
   
     const data = mastodonResponse.data;
+    console.log('returned from normal');
+    
     return NextResponse.json(data, { status: mastodonResponse.status });
   } catch (error) {
   console.log(error);
