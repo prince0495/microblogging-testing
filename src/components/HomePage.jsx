@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 
-// --- UI Components ---
-
 const LoadingScreen = () => (
   <div className="flex flex-col justify-center items-center h-full text-center">
     <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-4"></div>
@@ -93,33 +91,24 @@ const StatusCard = ({ status }) => (
   </div>
 );
 
-
-// --- The Main Page Component ---
 export default function HomePage() {
   const [user, setUser] = useState(null);
   const [timeline, setTimeline] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // This effect runs once when the component mounts to check the user's login status.
   useEffect(() => {
     const checkAuthAndFetchData = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        // We call our OWN API proxy, not Mastodon directly.
-        // Construct an absolute URL to prevent parsing errors.
         const userRes = await fetch(`${window.location.origin}/api/mastodon/v1/accounts/verify_credentials`);
         
         if (userRes.ok) {
           const userData = await userRes.json();
           setUser(userData);
           console.log(userData);
-          
-          
-          // If user is logged in, fetch their timeline.
-          // Construct an absolute URL to prevent parsing errors.
-          // const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
+       
           const timelineRes = await fetch(`${window.location.origin}/api/timelines?limit=20`);
           if (timelineRes.ok) {
             const timelineData = await timelineRes.json();
@@ -130,7 +119,6 @@ export default function HomePage() {
             throw new Error('Could not fetch timeline.');
           }
         } else {
-          // If verify_credentials fails, it means the user is not logged in.
           setUser(null);
           setTimeline([]);
         }
@@ -145,8 +133,6 @@ export default function HomePage() {
   }, []);
 
   const handlePostStatus = async (statusText) => {
-    // Call our proxy to post the status.
-    // Construct an absolute URL to prevent parsing errors.
     const res = await fetch(`${window.location.origin}/api/mastodon/v1/statuses`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -155,7 +141,6 @@ export default function HomePage() {
     if (!res.ok) {
         throw new Error('API returned an error');
     }
-    // Refresh timeline with the new post by prepending it.
     const newStatus = await res.json();
     setTimeline([newStatus, ...timeline]);
   };

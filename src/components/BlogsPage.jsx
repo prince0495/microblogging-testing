@@ -1552,7 +1552,7 @@ const DUMMY_POST_DATA = [
   }
 ]
 
-// --- HELPER FUNCTION: Formats date to a relative time string ---
+
 const formatDate = (dateString) => {
     const now = new Date();
     const date = new Date(dateString);
@@ -1565,18 +1565,12 @@ const formatDate = (dateString) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
-// --- SUB-COMPONENTS for the Blogs Page ---
-
-
-// A UI element for creating a new post
 const CreatePost = () => {
 
   const [statusText, setStatusText] = useState('')
   const addTimeline = useUserStore(state=>state.addTimeline)
 
   const handlePostStatus = async () => {
-    // Call our proxy to post the status.
-    // Construct an absolute URL to prevent parsing errors.
     if(statusText === '') return;
     
     const res = await fetch(`${window.location.origin}/api/mastodon/v1/statuses`, {
@@ -1587,7 +1581,6 @@ const CreatePost = () => {
     if (!res.ok) {
         throw new Error('API returned an error');
     }
-    // Refresh timeline with the new post by prepending it.
     const newStatus = await res.json();
     console.log('new ', newStatus);
     
@@ -1619,418 +1612,12 @@ const CreatePost = () => {
     </div>
 )};
 
-// const PostCard = ({ post, index }) => {
-//     // --- Determine Post Type based on index ---
-//     const isLive = index % 2 === 0;
-//     const isClip = index % 2 !== 0;
-
-//     // --- CSS ANIMATIONS & STYLES ---
-//     // In a real app, this would be in a CSS file. We embed it here for a single-file component.
-//     const styles = `
-//         /* --- Live Post Animations --- */
-//         @keyframes pulse-red {
-//             0% { box-shadow: 0 0 0 0 rgba(254, 105, 105, 0.7); }
-//             70% { box-shadow: 0 0 0 8px rgba(254, 105, 105, 0); }
-//             100% { box-shadow: 0 0 0 0 rgba(254, 105, 105, 0); }
-//         }
-//         .live-dot {
-//             animation: pulse-red 2s infinite;
-//         }
-
-//         @keyframes pulse-border {
-//             0% { box-shadow: 0 0 0 0px rgba(220, 38, 38, 0.4); } /* red-600 */
-//             100% { box-shadow: 0 0 0 4px rgba(220, 38, 38, 0); }
-//         }
-//         .live-post-glow {
-//             animation: pulse-border 1.5s infinite;
-//             border-color: #ef4444; /* red-500 */
-//         }
-
-//         /* --- Live Button Particle/Ripple Effect --- */
-//         @keyframes button-ripple {
-//             from { opacity: 0.6; transform: translate(-50%, -50%) scale(0); }
-//             to { opacity: 0; transform: translate(-50%, -50%) scale(6); }
-//         }
-//         .live-watch-button::after {
-//             content: '';
-//             position: absolute;
-//             border-radius: 9999px;
-//             background-color: white;
-//             width: 100%;
-//             padding-bottom: 100%;
-//             top: 50%;
-//             left: 50%;
-//             transform: translate(-50%, -50%) scale(0);
-//             opacity: 0;
-//         }
-//         .live-watch-button:active::after {
-//             animation: button-ripple 0.6s ease-out 1;
-//         }
-        
-//         /* --- Clip Post Styles & Metallic Sheen Animation --- */
-//         @keyframes metallic-sheen {
-//             0% { transform: translateX(-100%) skewX(-25deg); }
-//             100% { transform: translateX(250%) skewX(-25deg); }
-//         }
-//         .clip-card {
-//             position: relative;
-//             background-clip: padding-box;
-//             border: 1px solid #27272a; /* neutral-800 */
-//             overflow: hidden; /* Hide the sheen when it's outside */
-//         }
-//         .clip-card::before {
-//             content: '';
-//             position: absolute;
-//             top: 0;
-//             left: 0;
-//             width: 40%;
-//             height: 100%;
-//             background: linear-gradient(
-//                 to right, 
-//                 transparent 0%, 
-//                 rgba(192, 132, 252, 0.1) 50%, 
-//                 transparent 100%
-//             );
-//             transform: translateX(-100%) skewX(-25deg);
-//             pointer-events: none; /* Let clicks pass through */
-//         }
-//         .clip-card:hover::before {
-//            animation: metallic-sheen 0.7s ease-in-out 1;
-//         }
-//     `;
-
-//     // --- SUB-COMPONENTS ---
-
-//     const ActionButton = ({ icon, count, hoverColor }) => (
-//         <button className={`flex items-center gap-2 text-neutral-400 hover:text-${hoverColor}-400 transition-colors duration-200 group`}>
-//             {icon}
-//             <span className={`text-sm group-hover:text-${hoverColor}-400`}>{count > 0 ? count : ''}</span>
-//         </button>
-//     );
-
-//     const LiveIndicator = () => (
-//         <div className="flex items-center gap-2 bg-neutral-800/50 px-2 py-1 rounded-md">
-//             <span className="relative flex h-2 w-2">
-//                 <span className="live-dot absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-//                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-//             </span>
-//             <span className="text-xs font-bold tracking-wider uppercase text-red-400">LIVE</span>
-//         </div>
-//     );
-    
-//     const ClipIndicator = () => (
-//          <div className="flex items-center gap-2 bg-neutral-800/50 px-2 py-1 rounded-md">
-//             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16"><path fill="currentColor" fillRule="evenodd" d="M3.5 1a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-1 0v-13a.5.5 0 0 1 .5-.5m9 0a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-1 0v-13a.5.5 0 0 1 .5-.5M10 3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z"/></svg>
-//             <span className="text-xs font-bold tracking-wider uppercase text-purple-400">CLIP</span>
-//         </div>
-//     );
-
-
-//     return (
-//         <>
-//             <style>{styles}</style>
-//             <article className={`p-4 border-b transition-all duration-300 ${isLive ? 'live-post-glow border-red-500' : 'clip-card hover:bg-neutral-800/40'}`}>
-//                 <div className="flex items-start gap-4">
-//                     <img src={post.account?.avatar} alt={post.account?.display_name} className="w-12 h-12 rounded-full bg-neutral-700" />
-//                     <div className="w-full">
-//                         {/* Post Header */}
-//                         <div className="flex items-center justify-between">
-//                             <div className="flex items-center flex-wrap gap-x-2 gap-y-1">
-//                                 <span className="font-bold text-gray-100">{post.account?.display_name}</span>
-//                                 <span className="text-sm text-neutral-400 hidden sm:inline">@{post.account?.username}</span>
-//                                 <span className="text-sm text-neutral-500">&middot; {formatDate(post.created_at)}</span>
-//                                 {isLive && <LiveIndicator />}
-//                                 {isClip && <ClipIndicator />}
-//                             </div>
-//                              <button className="text-neutral-500 hover:text-white flex-shrink-0">
-//                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2m0-6c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2m0 12c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2"/></svg>
-//                             </button>
-//                         </div>
-
-//                         {/* Post Content */}
-//                         <div 
-//                             className="prose prose-invert prose-sm text-gray-300 mt-2" 
-//                             dangerouslySetInnerHTML={{ __html: post.content }} 
-//                         />
-                        
-//                         {/* Media Attachment */}
-//                         {post.media_attachments?.length > 0 && (
-//                             <div className="mt-3 rounded-2xl border border-neutral-700 overflow-hidden">
-//                                 <img src={post.media_attachments[0].url} alt="Post media" className="w-full h-auto object-cover" />
-//                             </div>
-//                         )}
-                        
-//                         {/* Conditional "Watch" Button */}
-//                         <div className="mt-4">
-//                             {isLive && (
-//                                 <button className="live-watch-button relative w-full overflow-hidden flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-lg font-bold text-black transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-white">
-//                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7l-11-7Z"></path></svg>
-//                                     Watch Live
-//                                 </button>
-//                             )}
-//                              {isClip && (
-//                                 <button className="relative w-full overflow-hidden flex items-center justify-center gap-2 rounded-full bg-neutral-500/10 backdrop-blur-sm border border-neutral-500/30 px-6 py-2 text-md font-semibold text-white transition-colors duration-200 hover:bg-neutral-500/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-purple-500">
-//                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7l-11-7Z"></path></svg>
-//                                     Watch Clip
-//                                 </button>
-//                             )}
-//                         </div>
-
-//                         {/* Action Bar */}
-//                         <div className="flex justify-between items-center mt-4 text-sm max-w-sm">
-//                             <ActionButton hoverColor="blue" count={post.replies_count} icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M10 9V5l-7 7l7 7v-4.1c5 0 8.5 1.6 11 5.1c-1-5-4-10-11-11"/></svg>} />
-//                             <ActionButton hoverColor="green" count={post.reblogs_count} icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10h10v4l4-5l-4-5v4H7v2m10 4H7v-4l-4 5l4 5v-4h10v-2Z"/></svg>} />
-//                             <ActionButton hoverColor="red" count={post.favourites_count} icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>} />
-//                             <ActionButton hoverColor="blue" icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81c1.66 0 3-1.34 3-3s-1.34-3-3-3s-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65c0 1.61 1.31 2.92 2.92 2.92c1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92"/></svg>} />
-//                         </div>
-//                     </div>
-//                 </div>
-//             </article>
-//         </>
-//     );
-// };
-// export const PostCard = ({ post, index }) => {
-//     // State to track the currently displayed media item
-//     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-
-//     // --- Determine Post Type based on index ---
-//     const isLive = index % 2 === 0;
-//     const isClip = index % 2 !== 0;
-
-//     // --- CSS ANIMATIONS & STYLES ---
-//     // In a real app, this would be in a CSS file. We embed it here for a single-file component.
-//     const styles = `
-//         /* --- Live Post Animations --- */
-//         @keyframes pulse-red {
-//             0% { box-shadow: 0 0 0 0 rgba(254, 105, 105, 0.7); }
-//             70% { box-shadow: 0 0 0 8px rgba(254, 105, 105, 0); }
-//             100% { box-shadow: 0 0 0 0 rgba(254, 105, 105, 0); }
-//         }
-//         .live-dot {
-//             animation: pulse-red 2s infinite;
-//         }
-
-//         @keyframes pulse-border {
-//             0% { box-shadow: 0 0 0 0px rgba(220, 38, 38, 0.4); } /* red-600 */
-//             100% { box-shadow: 0 0 0 4px rgba(220, 38, 38, 0); }
-//         }
-//         .live-post-glow {
-//             animation: pulse-border 1.5s infinite;
-//             border-color: #ef4444; /* red-500 */
-//         }
-
-//         /* --- Live Button Particle/Ripple Effect --- */
-//         @keyframes button-ripple {
-//             from { opacity: 0.6; transform: translate(-50%, -50%) scale(0); }
-//             to { opacity: 0; transform: translate(-50%, -50%) scale(6); }
-//         }
-//         .live-watch-button::after {
-//             content: '';
-//             position: absolute;
-//             border-radius: 9999px;
-//             background-color: white;
-//             width: 100%;
-//             padding-bottom: 100%;
-//             top: 50%;
-//             left: 50%;
-//             transform: translate(-50%, -50%) scale(0);
-//             opacity: 0;
-//         }
-//         .live-watch-button:active::after {
-//             animation: button-ripple 0.6s ease-out 1;
-//         }
-        
-//         /* --- Clip Post Styles & Metallic Sheen Animation --- */
-//         @keyframes metallic-sheen {
-//             0% { transform: translateX(-100%) skewX(-25deg); }
-//             100% { transform: translateX(250%) skewX(-25deg); }
-//         }
-//         .clip-card {
-//             position: relative;
-//             background-clip: padding-box;
-//             border: 1px solid #27272a; /* neutral-800 */
-//             overflow: hidden; /* Hide the sheen when it's outside */
-//         }
-//         .clip-card::before {
-//             content: '';
-//             position: absolute;
-//             top: 0;
-//             left: 0;
-//             width: 40%;
-//             height: 100%;
-//             background: linear-gradient(
-//                 to right, 
-//                 transparent 0%, 
-//                 rgba(192, 132, 252, 0.1) 50%, 
-//                 transparent 100%
-//             );
-//             transform: translateX(-100%) skewX(-25deg);
-//             pointer-events: none; /* Let clicks pass through */
-//         }
-//         .clip-card:hover::before {
-//            animation: metallic-sheen 0.7s ease-in-out 1;
-//         }
-//     `;
-
-//     // --- Handlers for Media Navigation ---
-//     const handleNextMedia = (e) => {
-//         e.stopPropagation();
-//         setCurrentMediaIndex(prev => (prev + 1) % post.media_attachments.length);
-//     };
-
-//     const handlePrevMedia = (e) => {
-//         e.stopPropagation();
-//         setCurrentMediaIndex(prev => (prev - 1 + post.media_attachments.length) % post.media_attachments.length);
-//     };
-
-
-//     // --- SUB-COMPONENTS ---
-
-//     const MediaRenderer = ({ media }) => {
-//         if (!media) return null;
-
-//         switch (media.type) {
-//             case 'image':
-//                 return <img src={media.url} alt={media.description || 'Post media'} className="w-full h-auto max-h-[60vh] object-contain bg-black" />;
-//             case 'gifv':
-//             case 'video':
-//                 return <video src={media.url} controls autoPlay loop muted playsInline className="w-full h-auto max-h-[60vh] object-contain bg-black" />;
-//             case 'audio':
-//                 return (
-//                     <div className="flex items-center justify-center p-4 bg-neutral-800/50 w-full h-full min-h-[120px]">
-//                         <audio src={media.url} controls className="w-full" />
-//                     </div>
-//                 );
-//             default:
-//                 return <div className="p-4 text-center text-neutral-400">Unsupported media type: {media.type}</div>;
-//         }
-//     };
-
-//     const ActionButton = ({ icon, count, hoverColor }) => (
-//         <button className={`flex items-center gap-2 text-neutral-400 hover:text-${hoverColor}-400 transition-colors duration-200 group`}>
-//             {icon}
-//             <span className={`text-sm group-hover:text-${hoverColor}-400`}>{count > 0 ? count : ''}</span>
-//         </button>
-//     );
-
-//     const LiveIndicator = () => (
-//         <div className="flex items-center gap-2 bg-neutral-800/50 px-2 py-1 rounded-md">
-//             <span className="relative flex h-2 w-2">
-//                 <span className="live-dot absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-//                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-//             </span>
-//             <span className="text-xs font-bold tracking-wider uppercase text-red-400">LIVE</span>
-//         </div>
-//     );
-    
-//     const ClipIndicator = () => (
-//          <div className="flex items-center gap-2 bg-neutral-800/50 px-2 py-1 rounded-md text-purple-400">
-//             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16"><path fill="currentColor" fillRule="evenodd" d="M3.5 1a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-1 0v-13a.5.5 0 0 1 .5-.5m9 0a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-1 0v-13a.5.5 0 0 1 .5-.5M10 3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z"/></svg>
-//             <span className="text-xs font-bold tracking-wider uppercase">CLIP</span>
-//         </div>
-//     );
-
-
-//     return (
-//         <>
-//             <style>{styles}</style>
-//             <article className={`p-4 border-b transition-all duration-300 ${isLive ? 'live-post-glow border-red-500' : 'clip-card hover:bg-neutral-800/40'}`}>
-//                 <div className="flex items-start gap-4">
-//                     <img src={post.account?.avatar} alt={post.account?.display_name} className="w-12 h-12 rounded-full bg-neutral-700" />
-//                     <div className="w-full">
-//                         {/* Post Header */}
-//                         <div className="flex items-center justify-between">
-//                             <div className="flex items-center flex-wrap gap-x-2 gap-y-1">
-//                                 <span className="font-bold text-gray-100">{post.account?.display_name}</span>
-//                                 <span className="text-sm text-neutral-400 hidden sm:inline">@{post.account?.username}</span>
-//                                 <span className="text-sm text-neutral-500">&middot; {formatDate(post.created_at)}</span>
-//                                 {isLive && <LiveIndicator />}
-//                                 {isClip && <ClipIndicator />}
-//                             </div>
-//                              <button className="text-neutral-500 hover:text-white flex-shrink-0">
-//                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2m0-6c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2m0 12c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2"/></svg>
-//                             </button>
-//                         </div>
-
-//                         {/* Post Content */}
-//                         <div 
-//                             className="prose prose-invert prose-sm text-gray-300 mt-2" 
-//                             dangerouslySetInnerHTML={{ __html: post.content }} 
-//                         />
-                        
-//                         {/* --- UPDATED Media Attachment Viewer --- */}
-//                         {post.media_attachments?.length > 0 && (
-//                             <div className="relative mt-3 rounded-2xl border border-neutral-700 overflow-hidden group">
-//                                 <MediaRenderer media={post.media_attachments[currentMediaIndex]} />
-                                
-//                                 {post.media_attachments.length > 1 && (
-//                                     <>
-//                                         {/* Previous Media Button */}
-//                                         <button 
-//                                             onClick={handlePrevMedia}
-//                                             className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/75 focus:opacity-100 focus:outline-none"
-//                                             aria-label="Previous image"
-//                                         >
-//                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-//                                         </button>
-                                        
-//                                         {/* Next Media Button */}
-//                                         <button 
-//                                             onClick={handleNextMedia}
-//                                             className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/75 focus:opacity-100 focus:outline-none"
-//                                             aria-label="Next image"
-//                                         >
-//                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-//                                         </button>
-
-//                                         {/* Media Position Indicator */}
-//                                         <div className="absolute top-2 right-2 z-10 px-2 py-1 rounded-full bg-black/60 text-white text-xs font-semibold">
-//                                             {currentMediaIndex + 1} / {post.media_attachments.length}
-//                                         </div>
-//                                     </>
-//                                 )}
-//                             </div>
-//                         )}
-                        
-//                         {/* Conditional "Watch" Button */}
-//                         {/* <div className="mt-4">
-//                             {isLive && (
-//                                 <button className="live-watch-button relative w-full overflow-hidden flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-lg font-bold text-black transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-white">
-//                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7l-11-7Z"></path></svg>
-//                                     Watch Live
-//                                 </button>
-//                             )}
-//                              {isClip && (
-//                                 <button className="relative w-full overflow-hidden flex items-center justify-center gap-2 rounded-full bg-neutral-500/10 backdrop-blur-sm border border-neutral-500/30 px-6 py-2 text-md font-semibold text-white transition-colors duration-200 hover:bg-neutral-500/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-purple-500">
-//                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v14l11-7l-11-7Z"></path></svg>
-//                                     Watch Clip
-//                                 </button>
-//                             )}
-//                         </div> */}
-
-//                         {/* Action Bar */}
-//                         <div className="flex justify-between items-center mt-4 text-sm max-w-sm">
-//                             <ActionButton hoverColor="blue" count={post.replies_count} icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M10 9V5l-7 7l7 7v-4.1c5 0 8.5 1.6 11 5.1c-1-5-4-10-11-11"/></svg>} />
-//                             <ActionButton hoverColor="green" count={post.reblogs_count} icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10h10v4l4-5l-4-5v4H7v2m10 4H7v-4l-4 5l4 5v-4h10v-2Z"/></svg>} />
-//                             <ActionButton hoverColor="red" count={post.favourites_count} icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>} />
-//                             <ActionButton hoverColor="blue" icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81c1.66 0 3-1.34 3-3s-1.34-3-3-3s-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65c0 1.61 1.31 2.92 2.92 2.92c1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92"/></svg>} />
-//                         </div>
-//                     </div>
-//                 </div>
-//             </article>
-//         </>
-//     );
-// };
 export const PostCard = ({ post, index }) => {
-    // State to track the currently displayed media item
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
-    // --- Determine Post Type based on index ---
     const isLive = post?.authorId ? true : false;
     const isClip = post?.authorId ? false : true;
 
-    // --- CSS ANIMATIONS & STYLES ---
-    // In a real app, this would be in a CSS file. We embed it here for a single-file component.
     const styles = `
         /* --- Live Post Animations --- */
         @keyframes pulse-red {
@@ -2104,7 +1691,6 @@ export const PostCard = ({ post, index }) => {
         }
     `;
 
-    // --- Handlers for Media Navigation ---
     const handleNextMedia = (e) => {
         e.stopPropagation();
         setCurrentMediaIndex(prev => (prev + 1) % post.media_attachments.length);
@@ -2114,9 +1700,6 @@ export const PostCard = ({ post, index }) => {
         e.stopPropagation();
         setCurrentMediaIndex(prev => (prev - 1 + post.media_attachments.length) % post.media_attachments.length);
     };
-
-
-    // --- SUB-COMPONENTS ---
 
     const MediaRenderer = ({ media }) => {
         if (!media) return null;
@@ -2170,7 +1753,6 @@ export const PostCard = ({ post, index }) => {
                 <div className="flex items-start gap-4">
                     <img src={post.account?.avatar} alt={post.account?.display_name} className="w-12 h-12 rounded-full bg-neutral-700" />
                     <div className="w-full">
-                        {/* Post Header */}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center flex-wrap gap-x-2 gap-y-1">
                                 <span className="font-bold text-gray-100">{post.account?.display_name}</span>
@@ -2184,20 +1766,18 @@ export const PostCard = ({ post, index }) => {
                            </button>
                         </div>
 
-                        {/* Post Content */}
+                    
                         <div 
                             className="prose prose-invert prose-sm text-gray-300 mt-2" 
                             dangerouslySetInnerHTML={{ __html: post.content }} 
                         />
-                        
-                        {/* --- UPDATED Media Attachment Viewer --- */}
+         
                         {post.media_attachments?.length > 0 && (
                             <div className="relative mt-3 rounded-2xl border border-neutral-700 overflow-hidden group">
                                 <MediaRenderer media={post.media_attachments[currentMediaIndex]} />
                                 
                                 {post.media_attachments.length > 1 && (
                                     <>
-                                        {/* Previous Media Button */}
                                         <button 
                                             onClick={handlePrevMedia}
                                             className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/75 focus:opacity-100 focus:outline-none"
@@ -2206,7 +1786,6 @@ export const PostCard = ({ post, index }) => {
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                                         </button>
                                         
-                                        {/* Next Media Button */}
                                         <button 
                                             onClick={handleNextMedia}
                                             className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/75 focus:opacity-100 focus:outline-none"
@@ -2215,7 +1794,6 @@ export const PostCard = ({ post, index }) => {
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                                         </button>
 
-                                        {/* Media Position Indicator */}
                                         <div className="absolute top-2 right-2 z-10 px-2 py-1 rounded-full bg-black/60 text-white text-xs font-semibold">
                                             {currentMediaIndex + 1} / {post.media_attachments.length}
                                         </div>
@@ -2224,15 +1802,12 @@ export const PostCard = ({ post, index }) => {
                             </div>
                         )}
                         
-                        {/* --- ADDED: Conditional Paid Stream Button --- */}
                         <div className="mt-4">
-                            {/* This UI will ONLY show if it's a Live post AND has streamId, price, and currency */}
                             {isLive && post.streamId && post.price && post.currency && (
                                 <div className="flex items-center justify-between gap-4 p-3 bg-neutral-800/70 rounded-xl border border-neutral-700 backdrop-blur-sm">
                                     <div className="flex flex-col">
                                         <span className="text-xs text-neutral-400">Join Fee</span>
                                         <span className="text-xl font-bold text-white">
-                                            {/* Formats the price and currency (e.g., ₹199.00) */}
                                             {new Intl.NumberFormat('en-IN', { 
                                                 style: 'currency', 
                                                 currency: post.currency 
@@ -2240,11 +1815,10 @@ export const PostCard = ({ post, index }) => {
                                         </span>
                                     </div>
                                     
-                                    {/* This button uses the 'live-watch-button' class from your CSS for the ripple effect */}
                                     <button 
                                         className="live-watch-button relative overflow-hidden flex-shrink-0 flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 text-md font-bold text-black transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-white"
                                         onClick={(e) => {
-                                            e.stopPropagation(); // Prevent card click
+                                            e.stopPropagation();
                                             console.log(`Joining stream with ID: ${post.streamId}`);
                                         }}
                                     >
@@ -2254,8 +1828,6 @@ export const PostCard = ({ post, index }) => {
                                 </div>
                             )}
                         </div>
-
-                        {/* Action Bar */}
                         <div className="flex justify-between items-center mt-4 text-sm max-w-sm">
                             <ActionButton hoverColor="blue" count={post.replies_count} icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M10 9V5l-7 7l7 7v-4.1c5 0 8.5 1.6 11 5.1c-1-5-4-10-11-11"/></svg>} />
                             <ActionButton hoverColor="green" count={post.reblogs_count} icon={<svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10h10v4l4-5l-4-5v4H7v2m10 4H7v-4l-4 5l4 5v-4h10v-2Z"/></svg>} />
@@ -2278,7 +1850,6 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// --- The Main BlogsPage Component ---
 const BlogsPage = () => {
 
   const user = useUserStore(state=>state.user)
@@ -2294,18 +1865,14 @@ const BlogsPage = () => {
   const observerRef = useRef(null);
 
   const fetchMorePosts = useCallback(async () => {
-    // Prevent fetching if already in progress or if there's no more data to paginate from
     if (isFetchingMore || !lastPostId) return;
 
     setIsFetchingMore(true);
     try {
-      // Use the lastPostId to paginate with the `max_id` parameter
-      
-      // const res = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20&max_id=${lastPostId}`);
+
       const res = await fetch(`${window.location.origin}/api/timelines?limit=20&max_id=${lastPostId}`);
       if (res.ok) {
         const newTimelineData = await res.json();
-        // Append new data only if we received some
         if (newTimelineData.length > 0) {
           appendTimeline(newTimelineData);
         }
@@ -2322,19 +1889,17 @@ const BlogsPage = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        // If the observer's target is intersecting (visible on screen)
         if (entries[0].isIntersecting) {
           fetchMorePosts();
         }
       },
-      { threshold: 1.0 } // Trigger when the element is 100% visible
+      { threshold: 1.0 }
     );
 
     if (observerRef.current) {
       observer.observe(observerRef.current);
     }
 
-    // Cleanup function to disconnect the observer
     return () => {
       if (observerRef.current) {
         observer.unobserve(observerRef.current);
@@ -2356,17 +1921,10 @@ const BlogsPage = () => {
       <CreatePost />
       <StatusComposer/>
       {timeline.map((post, i) => (
-        // IMPORTANT: Use a stable, unique key like post.id
         <PostCard key={i} post={post}/>
       ))}
-
-      {/* This invisible div is the trigger for the Intersection Observer */}
       <div ref={observerRef} style={{ height: "1px" }} />
-
-      {/* Show loading spinner at the bottom while fetching more posts */}
       {isFetchingMore && <LoadingSpinner />}
-      
-      {/* Optional: Show a message when no more posts can be loaded */}
       {!isFetchingMore && timeline.length > 0 && !lastPostId && (
         <div className="text-center text-neutral-500 p-4">You've reached the end!</div>
       )}

@@ -6,7 +6,7 @@ import axios from "axios";
 const mastodonInstance = process.env.MASTODON_INSTANCE_URL;
 const cookieSecret = process.env.COOKIE_SECRET;
 const cookieName = "mastodon_session";
-// Helper function to decrypt sealed session cookie
+
 async function unsealData(sealedData) {
   try {
     return await Iron.unseal(sealedData, cookieSecret, Iron.defaults);

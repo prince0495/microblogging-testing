@@ -25,7 +25,7 @@ async function unsealData(sealedData) {
 export async function POST(request) {
 
 
-  // 1️⃣ Authenticate the user (Mastodon OAuth)
+  // Authenticate the user (Mastodon OAuth)
   const cookieVal = await cookies();
   const cookie = cookieVal.get(cookieName);
   if (!cookie) {
@@ -70,7 +70,6 @@ export async function POST(request) {
 
       if (!res.ok) {
         const err = await res.json();
-        // throw new Error(`Post creation failed: ${err.error}`);
         return NextResponse.json({ error: err }, { status: res.status })
       }
 
@@ -86,10 +85,6 @@ export async function POST(request) {
       const scheduledAt = new Date(scheduleTime);
       
       const decimalPrice = new Decimal(price);
-      const streamCurrency = StreamCurrency[currency] || StreamCurrency.INR;
-      
-            console.log(price, currency, scheduleTime, userId, scheduledAt, decimalPrice, streamCurrency);
-            console.log(typeof price, typeof currency, typeof scheduleTime, typeof userId, typeof scheduledAt, typeof decimalPrice, typeof streamCurrency);
 
       try {
 
@@ -123,16 +118,21 @@ export async function POST(request) {
           return NextResponse.json({ error: err }, { status: res.status })
         };
 
-        const newStatus = await response.json();
+        const resData = await response.json();
 
         await prisma.stream.update({
           where: {
             id: stream.id
           },
           data: {
-            statusId: newStatus.id
+            statusId: resData.id
           }
         })
+        console.log(resData.content);
+
+        const newStatusText = `${resData.content.split('Tradegospel_v1:')[0].slice(0, -4)}</p>`;
+        
+        const newStatus = {...resData, authorId: userId, price, currency, streamId: stream.id, content: newStatusText};
 
         return NextResponse.json({ status: newStatus }, { status: 200 });
 
@@ -155,34 +155,6 @@ export async function POST(request) {
   }
 }
 
-
-// async function uploadMedia(file, accessToken) {
-//   const formData = new FormData();
-//   formData.append('file', file);
-//   formData.append('description', file.name || 'uploaded media');
-
-//   console.log('uploading');
-
-//   const response = await fetch(`${mastodonInstance}/api/v2/media`, {
-//     method: 'POST',
-//     headers: { Authorization: `Bearer ${accessToken}` },
-//     body: formData,
-//   });
-
-//   if (!response.ok) {
-//     const err = await response.json();
-//     throw new Error(`Upload failed: ${err.error}`);
-//   }
-
-//   const media = await response.json();
-
-//   // If it's being processed (video/gifv/audio)
-//   if (!media.url) {
-//     return await waitForMediaReady(media.id, accessToken);
-//   }
-
-//   return media;
-// }
 async function uploadMedia(file, accessToken, secretDescription = null) {
   const formData = new FormData();
   formData.append('file', file);
@@ -210,7 +182,6 @@ async function uploadMedia(file, accessToken, secretDescription = null) {
 
     const media = await response.json();
 
-    // If Mastodon is still processing (videos/gifs)
     if (!media.url) {
       return await waitForMediaReady(media.id, accessToken);
     }
@@ -233,7 +204,7 @@ async function waitForMediaReady(mediaId, accessToken) {
     });
     const data = await res.json();
 
-    if (data.url) return data; // Ready
-    await new Promise(r => setTimeout(r, 2000)); // Wait 2 sec
+    if (data.url) return data;
+    await new Promise(r => setTimeout(r, 2000));
   }
 }

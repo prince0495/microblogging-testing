@@ -70,8 +70,8 @@ export default function StatusComposer() {
       console.log(formData);
       
       const res = await axios.post('/api/create-status', formData, {
-  headers: { 'Content-Type': 'multipart/form-data' },
-});
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
       console.log('resdata');
       

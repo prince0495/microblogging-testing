@@ -29,7 +29,6 @@ const Navbar = ({ onMenuToggle }) => {
     <header className='sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 bg-neutral-900/60 backdrop-blur-lg border-b border-neutral-700/50'>
       <div className="mx-auto flex h-16 items-center justify-between">
         
-        {/* Left Column: Logo and App Name */}
         <div className="flex items-center gap-3">
           <div className='w-16 h-16 rounded-full bg-cover'>
             <img src="/logo.png" alt="logo" />
@@ -43,7 +42,6 @@ const Navbar = ({ onMenuToggle }) => {
           </h1>
         </div>
 
-        {/* Center Column: Search Bar */}
         <div className="hidden md:flex flex-1 justify-center px-8 lg:px-16">
           <div className="relative w-full max-w-lg">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500">
@@ -62,17 +60,14 @@ const Navbar = ({ onMenuToggle }) => {
           </div>
         </div>
 
-        {/* Right Column: Actions */}
         <div className="flex items-center gap-2 md:gap-4">
           <div className="hidden md:flex items-center gap-3 relative">
             {isLoading ? (
-              // Skeleton while loading
               <div className="flex items-center gap-2 animate-pulse">
                 <div className="w-10 h-10 rounded-full bg-neutral-700"></div>
                 <div className="h-4 w-24 bg-neutral-700 rounded"></div>
               </div>
             ) : user ? (
-              // User logged in with dropdown
               <div className="flex items-center gap-3 relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -88,7 +83,6 @@ const Navbar = ({ onMenuToggle }) => {
                   {user.display_name || user.username}
                 </span>
 
-                {/* Dropdown */}
                 {isDropdownOpen && (
                   <div className="absolute right-0 top-12 w-40 bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg py-2 z-50 ">
                     <button
@@ -107,7 +101,6 @@ const Navbar = ({ onMenuToggle }) => {
                 )}
               </div>
             ) : (
-              // No user, show Sign In button
               <a
                 href="/api/auth/login"
                 className="px-4 py-2 bg-[#288fd2] hover:bg-[#1560a1] text-white font-semibold rounded-lg shadow-sm transition-all duration-300"
@@ -117,7 +110,6 @@ const Navbar = ({ onMenuToggle }) => {
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
           <div className="md:hidden">
             <button
               onClick={onMenuToggle}
@@ -139,7 +131,3 @@ const Navbar = ({ onMenuToggle }) => {
 };
 
 export default Navbar;
-
-
-// export default Navbar;
-

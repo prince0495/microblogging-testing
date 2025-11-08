@@ -7,11 +7,10 @@ import Iron from '@hapi/iron';
 // GET /api/auth/callback  - Handles the user being redirected back from Mastodon.
 // GET /api/auth/logout    - Clears the user's session.
 
-// --- Load Configuration from Environment Variables ---
 const mastodonInstance = process.env.MASTODON_INSTANCE_URL;
 const clientId = process.env.MASTODON_CLIENT_ID;
 const clientSecret = process.env.MASTODON_CLIENT_SECRET;
-// This is the exact URI you must add to your Mastodon app's settings.
+
 const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
 const cookieSecret = process.env.COOKIE_SECRET;
 const cookieName = 'mastodon_session';
@@ -26,9 +25,7 @@ export async function GET(request, { params }) {
   const param = await params;
   const action = param.mastodon[0];
 
-  // --- LOGIN ACTION ---
   if (action === 'login') {
-    // We need read access (for timelines) and write access (to post statuses).
     const scopes = 'read write:statuses write:media write:accounts';
     
     // Construct the authorization URL.

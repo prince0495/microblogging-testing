@@ -3,23 +3,15 @@ import { cookies } from 'next/headers';
 import Iron from '@hapi/iron';
 import axios from 'axios';
 
-// This is a proxy route. It catches all requests to /api/mastodon/*
-// Its job is to:
-// 1. Get the user's encrypted session cookie.
-// 2. Decrypt the access token from it.
-// 3. Forward the original request to the real Mastodon API, adding the Authorization header.
-// 4. Return the response from Mastodon back to the frontend.
-
 const mastodonInstance = process.env.MASTODON_INSTANCE_URL;
 const cookieSecret = process.env.COOKIE_SECRET;
 const cookieName = 'mastodon_session';
 
-// Helper function to decrypt the sealed cookie data.
 async function unsealData(sealedData) {
   try {
     return Iron.unseal(sealedData, cookieSecret, Iron.defaults);
   } catch (err) {
-    return null; // The cookie is invalid, expired, or tampered with.
+    return null;
   }
 }
 

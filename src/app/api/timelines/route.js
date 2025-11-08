@@ -12,7 +12,7 @@ async function unsealData(sealedData) {
   try {
     return await Iron.unseal(sealedData, cookieSecret, Iron.defaults);
   } catch (err) {
-    return null; // The cookie is invalid, expired, or tampered with.
+    return null;
   }
 }
 
@@ -41,8 +41,7 @@ export async function GET(request) {
         
             if(secondPart) {
                 const sealedData = secondPart.slice(0, -4);
-                const unsealedData = await unsealData(sealedData);
-                // console.log('SESSION', unsealedData);                
+                const unsealedData = await unsealData(sealedData);             
                 return {...obj, authorId: unsealedData.authorId, price: unsealedData.price, currency: unsealedData.currency, streamId: unsealedData.streamId, content: `${splitedString[0]}</p>`};
             }
             else {

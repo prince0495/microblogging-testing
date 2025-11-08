@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useUserStore } from '@/lib/store';
 
-
-// --- DUMMY DATA PROVIDED IN THE PROMPT ---
 const DUMMY_SUGGESTED_ACCOUNTS = [
   { "id": "1", "display_name": "Casey Smith", "username": "caseysmith", "acct": "caseysmith@stream.hub", "avatar": "https://randomuser.me/api/portraits/women/75.jpg" },
   { "id": "2", "display_name": "Alex Vision", "username": "alexvision", "acct": "alexvision@stream.hub", "avatar": "https://randomuser.me/api/portraits/men/32.jpg" },
@@ -17,9 +15,6 @@ const DUMMY_TRENDING_TAGS = [
     { "id": "353417", "name": "PhotoOfTheDay", "url": "https://mastodon.social/tags/photooftheday", "posts": "1.9k" },
 ];
 
-// --- COMPONENTS ---
-
-// A reusable container for the sidebar sections
 const SidebarCard = ({ title, children }) => (
   <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
     <h2 className="text-xl font-bold text-gray-100 px-4 py-3">{title}</h2>
@@ -32,7 +27,6 @@ const SidebarCard = ({ title, children }) => (
   </div>
 );
 
-// Component for a single suggested account item
 const AccountItem = ({ account }) => (
   <li className="flex items-center justify-between gap-3 px-4 py-3 transition-colors duration-200 hover:bg-neutral-800/50">
     <div className="flex items-center gap-3">
@@ -48,7 +42,6 @@ const AccountItem = ({ account }) => (
   </li>
 );
 
-// Component for a single trending tag item
 const TrendItem = ({ trend }) => {
   const setTimeline = useUserStore(state=>state.setTimeline);
   
@@ -99,11 +92,8 @@ const RelevantPage = () => {
   }
 
   return (
-    // This container is designed to be placed in a sidebar layout.
-    // It's sticky so it remains visible on scroll.
     <aside className="sticky top-20 space-y-6">
       
-      {/* "Who to follow" Card */}
       <SidebarCard title="Who to follow">
         <ul>
           {DUMMY_SUGGESTED_ACCOUNTS.map(account => (
@@ -112,18 +102,10 @@ const RelevantPage = () => {
         </ul>
       </SidebarCard>
 
-      {/* "Trends for you" Card */}
       <SidebarCard title="Trends for you">
-        {/* <ul>
-            {tags.map(tag => (
-                <TrendItem key={tag.id} trend={tag} />
-            ))}
-        </ul> */}
-
 
         <div className="px-4 pb-3">
           <div className="flex items-center gap-3">
-              {/* Search input with integrated reset button */}
               <div className="relative flex-grow">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg className="w-5 h-5 text-neutral-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -135,11 +117,9 @@ const RelevantPage = () => {
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full bg-neutral-800 text-gray-100 rounded-full pl-10 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-shadow duration-200"
                   />
-                  {/* --- NEW: Reset button appears when there is input --- */}
                   {searchQuery && (
                       <button 
                           onClick={async() => {
-                            // const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
                             const timelineRes = await fetch(`${window.location.origin}/api/timelines?limit=20`);
                             if (timelineRes.ok) {
                               const timelineData = await timelineRes.json();
@@ -157,7 +137,6 @@ const RelevantPage = () => {
                       </button>
                   )}
               </div>
-              {/* --- NEW: Standalone search button --- */}
               <button
                   onClick={() => {
                     fetchStatusWithTrend(searchQuery)

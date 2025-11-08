@@ -3,15 +3,9 @@
 import ContentPage from "@/components/ContentPage";
 import HomeWrapper from "@/components/HomeWrapper";
 import { useUserStore } from "@/lib/store";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export default function Home() {
-  
-  // const user = useUserStore(state => state.user);
-  // const timeline = useUserStore(state => state.timeline);
-  // const isLoading = useUserStore(state => state.isLoading);
-  // const error = useUserStore(state => state.error);
-
   const setUser = useUserStore(state => state.setUser);
   const setTimeline = useUserStore(state => state.setTimeline);
   const setIsLoading = useUserStore(state => state.setIsLoading);
@@ -22,8 +16,6 @@ export default function Home() {
         setIsLoading(true);
         setError(null);
         try {
-          // We call our OWN API proxy, not Mastodon directly.
-          // Construct an absolute URL to prevent parsing errors.
           const userRes = await fetch(`${window.location.origin}/api/mastodon/v1/accounts/verify_credentials`);
           
           if (userRes.ok) {
@@ -31,11 +23,7 @@ export default function Home() {
             setUser(userData);
             console.log(userData);
             console.log('scope', userData.scopes, userData.scope);
-            
-            
-            // If user is logged in, fetch their timeline.
-            // Construct an absolute URL to prevent parsing errors.
-            // const timelineRes = await fetch(`${window.location.origin}/api/mastodon/v1/timelines/home?limit=20`);
+
             const timelineRes = await fetch(`${window.location.origin}/api/timelines?limit=20`);
             if (timelineRes.ok) {
               const timelineData = await timelineRes.json();
@@ -46,7 +34,6 @@ export default function Home() {
               throw new Error('Could not fetch timeline.');
             }
           } else {
-            // If verify_credentials fails, it means the user is not logged in.
             setUser(null);
             setTimeline([]);
           }

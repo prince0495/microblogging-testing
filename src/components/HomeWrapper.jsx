@@ -13,8 +13,6 @@ const HomeWrapper = ({children}) => {
     <div className='relative h-full font-sans'>
         <Navbar onMenuToggle={toggleSidebar} />
         {children}
-        {/* Mobile Sidebar (Drawer) */}
-        {/* This section is only for mobile and appears as an overlay */}
         <div
           className={`fixed top-0 right-0 h-full w-4/5 max-w-sm  z-40 transform transition-transform duration-300 ease-in-out md:hidden ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
           aria-hidden={!isSidebarOpen}
@@ -36,7 +34,6 @@ const HomeWrapper = ({children}) => {
           </div>
         </div>
 
-        {/* Overlay for when mobile sidebar is open, clicking it closes the sidebar */}
         {isSidebarOpen && (
           <div
             className="fixed inset-0 opacity-[0.43] bg-black z-30 md:hidden"
